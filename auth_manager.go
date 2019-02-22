@@ -14,7 +14,7 @@ func (a *authManager) Refresh(s string) (string, error) {
 	return s, nil
 }
 func (a *authManager) AuthenticationModes() []authApi.AuthenticationMode {
-	return nil
+	return []authApi.AuthenticationMode{}
 }
 func (a *authManager) AuthenticationSkippable() bool {
 	return true
