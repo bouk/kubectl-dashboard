@@ -649,7 +649,6 @@
     "github.com/kubernetes/dashboard/src/app/backend/settings",
     "github.com/kubernetes/dashboard/src/app/backend/systembanner",
     "github.com/pkg/browser",
-    "github.com/prometheus/client_golang/prometheus",
     "github.com/spf13/pflag",
     "k8s.io/api/authorization/v1",
     "k8s.io/client-go/kubernetes",

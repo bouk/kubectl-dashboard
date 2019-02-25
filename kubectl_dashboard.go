@@ -16,7 +16,6 @@ import (
 	"github.com/kubernetes/dashboard/src/app/backend/settings"
 	"github.com/kubernetes/dashboard/src/app/backend/systembanner"
 	"github.com/pkg/browser"
-	"github.com/prometheus/client_golang/prometheus"
 	"github.com/spf13/pflag"
 )
 
@@ -43,28 +42,27 @@ func main() {
 	apiHandler, err := handler.CreateHTTPAPIHandler(
 		integrationManager,
 		cm,
-		&authManager{},
+		nil,
 		settingsManager,
 		systemBannerManager)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	http.Handle("/", files.Server)
-	http.Handle("/api/", apiHandler)
-	http.Handle("/config", handler.AppHandler(handler.ConfigHandler))
-	http.Handle("/api/sockjs/", handler.CreateAttachHandler("/api/sockjs"))
-	http.Handle("/metrics", prometheus.Handler())
+	mux := http.NewServeMux()
+	mux.Handle("/", files.Server)
+	mux.Handle("/api/", apiHandler)
+	mux.Handle("/config", handler.AppHandler(handler.ConfigHandler))
+	mux.Handle("/api/sockjs/", handler.CreateAttachHandler("/api/sockjs"))
 
 	log.Printf("Serving at http://%v/", l.Addr())
 	if browser.OpenURL(fmt.Sprintf("http://%s/", l.Addr())) == nil {
 		log.Print("Opening browser...")
 	}
-	log.Fatal(http.Serve(l, http.DefaultServeMux))
+	log.Fatal(http.Serve(l, mux))
 }
 
 func initArgHolder() {
 	builder := args.GetHolderBuilder()
-	builder.SetEnableInsecureLogin(true)
 	builder.SetAPILogLevel("INFO")
 }
