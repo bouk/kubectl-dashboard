@@ -17,13 +17,20 @@ import (
 	"github.com/kubernetes/dashboard/src/app/backend/systembanner"
 	"github.com/pkg/browser"
 	"github.com/spf13/pflag"
+
+	"k8s.io/client-go/tools/clientcmd"
 )
 
 func main() {
-	log.SetOutput(os.Stdout)
+	log.SetOutput(os.Stderr)
 
-	pflag.CommandLine.AddGoFlagSet(flag.CommandLine)
+	overrides := &clientcmd.ConfigOverrides{}
+	pathOptions := clientcmd.NewDefaultPathOptions()
+
+	flag.StringVar(&pathOptions.LoadingRules.ExplicitPath, pathOptions.ExplicitFileFlag, pathOptions.LoadingRules.ExplicitPath, "use a particular kubeconfig file")
+	clientcmd.BindOverrideFlags(overrides, pflag.CommandLine, clientcmd.RecommendedConfigOverrideFlags(""))
 	pflag.Parse()
+
 	flag.CommandLine.Parse(make([]string, 0))
 
 	l, err := net.Listen("tcp", "127.0.0.1:")
@@ -33,7 +40,15 @@ func main() {
 
 	initArgHolder()
 
-	cm := newClientManager()
+	cm := newClientManager(pathOptions.LoadingRules, overrides)
+	client, err := cm.Client(nil)
+	if err != nil {
+		log.Fatal("failed to create API client: ", err)
+	}
+	_, err = client.Discovery().ServerVersion()
+	if err != nil {
+		log.Fatal("failed to contact Kubernetes API server: ", err)
+	}
 
 	settingsManager := settings.NewSettingsManager(cm)
 	systemBannerManager := systembanner.NewSystemBannerManager("", "")

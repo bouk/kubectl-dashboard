@@ -1,8 +1,6 @@
 package main
 
 import (
-	"path/filepath"
-
 	restful "github.com/emicklei/go-restful"
 	authApi "github.com/kubernetes/dashboard/src/app/backend/auth/api"
 	backendClient "github.com/kubernetes/dashboard/src/app/backend/client"
@@ -12,17 +10,16 @@ import (
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/client-go/tools/clientcmd/api"
-	"k8s.io/client-go/util/homedir"
 )
 
 type clientManager struct {
 	clientConfig clientcmd.ClientConfig
 }
 
-func newClientManager() *clientManager {
+func newClientManager(loadingRules *clientcmd.ClientConfigLoadingRules, overrides *clientcmd.ConfigOverrides) *clientManager {
 	clientConfig := clientcmd.NewNonInteractiveDeferredLoadingClientConfig(
-		&clientcmd.ClientConfigLoadingRules{ExplicitPath: filepath.Join(homedir.HomeDir(), ".kube", "config")},
-		&clientcmd.ConfigOverrides{})
+		loadingRules,
+		overrides)
 
 	return &clientManager{
 		clientConfig: clientConfig,
