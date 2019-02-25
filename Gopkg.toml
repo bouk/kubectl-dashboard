@@ -1,6 +1,12 @@
 [prune]
   go-tests = true
   unused-packages = true
+  non-go = true
+  
+  [[prune.project]]
+    name = "github.com/kubernetes/dashboard"
+    non-go = false
+    unused-packages = false
 
 [[constraint]]
   name = "k8s.io/api"
