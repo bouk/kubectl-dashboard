@@ -64,5 +64,6 @@ func main() {
 
 func initArgHolder() {
 	builder := args.GetHolderBuilder()
+	builder.SetNamespace("kube-system")
 	builder.SetAPILogLevel("INFO")
 }
