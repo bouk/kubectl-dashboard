@@ -50,7 +50,7 @@ func main() {
 		log.Fatal("failed to contact Kubernetes API server: ", err)
 	}
 
-	settingsManager := settings.NewSettingsManager(cm)
+	settingsManager := settings.NewSettingsManager()
 	systemBannerManager := systembanner.NewSystemBannerManager("", "")
 	integrationManager := integration.NewIntegrationManager(cm)
 

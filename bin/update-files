@@ -1,9 +1,13 @@
 #!/bin/bash
 set -euo pipefail
-pushd vendor/github.com/kubernetes/dashboard
+tag=version-2
+git clone --depth=1 --branch $tag git@github.com:bouk/dashboard.git || true
+pushd dashboard
+git fetch --depth=1 origin $tag && git reset --hard $tag
 echo > aio/scripts/version.js
-echo 'export const version: any = {semverString: "kubectl-dashboard"}' > src/app/frontend/environments/version.ts
+echo "export const version: any = {semverString: $(jq '.version + "+kubectl-dashboard"' < package.json)}" > src/app/frontend/environments/version.ts
 npm ci
 npm run build:frontend
 popd
-staticfiles -o files/files.go vendor/github.com/kubernetes/dashboard/dist/frontend/en/
+staticfiles -o files/files.go dashboard/dist/frontend/en/en/
+go get
