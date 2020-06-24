@@ -1,13 +1,16 @@
-#!/bin/bash
+#!/usr/bin/env bash
 set -euo pipefail
-tag=version-2
-git clone --depth=1 --branch $tag git@github.com:bouk/dashboard.git || true
+sha="$(awk '{ if ($1 == "github.com/kubernetes/dashboard" ) { split($2, a, "-"); print a[3]; exit } }' < go.sum)"
+git clone git@github.com:kubernetes/dashboard.git || true
 pushd dashboard
-git fetch --depth=1 origin $tag && git reset --hard $tag
+git fetch origin
+git reset --hard $sha
 echo > aio/scripts/version.js
 echo "export const version: any = {semverString: $(jq '.version + "+kubectl-dashboard"' < package.json)}" > src/app/frontend/environments/version.ts
 npm ci
 npm run build:frontend
 popd
 staticfiles -o files/files.go dashboard/dist/frontend/en/en/
+go mod tidy
+go mod vendor
 go get
